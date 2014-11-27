@@ -8,7 +8,10 @@
 #include <limits>
 
 void Carte::ajouterLieu(const string& nomlieu, const Coordonnee& c){
-    // À compléter.
+    Lieu lieu = Lieu(nomlieu, c);
+    lieux.push_back(lieu);
+    int indice = indices.size();
+    indices[nomlieu]=indice;
 }
 
 void Carte::ajouterRoute(const string& nomroute, const list<string>& route){
@@ -18,6 +21,20 @@ void Carte::ajouterRoute(const string& nomroute, const list<string>& route){
     // Il faut alors ajouter les segments de route (arêtes/arcs) : (a,b), (b,c), (c,d), (d,e).
     // Il ne faut pas ajouter (e,d), (d,c), (c,b), (b,a).
     // Les sens uniques doivent être considérées.
+    int io, id; // indice origine et destination
+    list<string>::const_iterator it = route.begin();
+    io = indices.at(*it);
+    ++it;
+    while (it != route.end()) {
+        id = indices.at(*it);
+        ajouterAreteNonOrientee(io, id);
+        io = id;
+        ++it;
+    }
+}
+
+void Carte::ajouterAreteNonOrientee(const int io, const int id){
+    lieux[io].voisins.insert(id);
 }
 
 double Carte::calculerTrajet(const string& nomorigine, const list<string>& nomsdestinations, 
@@ -38,8 +55,28 @@ double Carte::calculerChemin(const string& nomorigine, const string& nomdestinat
                              std::list<string>& out_cheminnoeuds, std::list<string>& out_cheminroutes) const
 {
     // À compléter.
+    //
+    // todo:
+    // 1)utiliser djiktra ou A* pour les distances entres les diff/rentes destination
+    // 2 ) creer un graphe des destinations (avec les distances calcules en 1) et calculer le minimum hamilton cycle ? parcourt min en passant par chaques
     return numeric_limits<double>::infinity();
 }
+
+// afficher les données de la carte //todo retirer avant la remise
+ostream& operator << (ostream& os, Carte& carte){
+
+    for (unsigned int i = 0; i < carte.lieux.size();++i){
+        os << endl << carte.lieux[i].nomlieu << " -> ";
+        for (set<unsigned int>::iterator it = carte.lieux[i].voisins.begin();
+             it !=  carte.lieux[i].voisins.end(); ++it){
+            os << carte.lieux[*it].nomlieu << ", ";
+        }
+    }
+
+    os << endl;
+    return os;
+}
+
 
 /* Lire une carte. */
 istream& operator >> (istream& is, Carte& carte)

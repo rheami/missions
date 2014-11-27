@@ -9,6 +9,10 @@
 #include <assert.h>
 #include <istream>
 #include <list>
+#include <set>
+#include <map>
+#include <vector>
+#include <queue>
 #include <string>
 #include "coordonnee.h"
 using namespace std;
@@ -25,8 +29,19 @@ class Carte{
                              std::list<string>& out_cheminnoeuds, std::list<string>& out_cheminroutes) const;
   private:
     // À compléter.
+    struct Lieu { // lieux = sommets du graphe
+        string nomlieu;
+        Lieu(const string& nomlieu_, const Coordonnee& c_) :nomlieu(nomlieu_), coor(c_){}
+        Coordonnee coor;
+        set<unsigned int> voisins; // lieux voisin directement lié
+        mutable bool visite;
+    };
+    map<string, unsigned int> indices;
+    vector<Lieu> lieux;
 
-  friend istream& operator >> (istream& is, Carte& carte);
+    void ajouterAreteNonOrientee(const int io, const int id);
+    friend istream& operator >> (istream& is, Carte& carte);
+    friend ostream& operator << (ostream& os, Carte& carte);
 };
 
 #endif

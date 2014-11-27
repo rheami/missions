@@ -60,6 +60,12 @@ int main(int argc, const char** argv)
         }
         fichiercarte >> carte;
     }
+
+    // affichage du graphe de la carte
+
+
+    cout << "affichage du graphe de la carte : \n" << carte;
+
     if(argc>2){
         // Lecture des missions depuis un fichier.
         ifstream ismissions(argv[2]);
