@@ -21,7 +21,7 @@ using namespace std;
 
 class Carte {
 public:
-    // À compléter (vous pouvez tout changer).
+
     void ajouterLieu(const string &nom, const Coordonnee &c);
 
     void ajouterRoute(const string &nom, const list<string> &noms);
@@ -33,21 +33,20 @@ public:
             std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const;
 
 private:
-    // À compléter.
-    struct Lieu { // lieux = sommets du graphe
+
+    struct Lieu { // sommet
         string nomlieu;
 
         Lieu(const string &nomlieu_, const Coordonnee &c_) : nomlieu(nomlieu_), coor(c_) {
-
         }
 
         Coordonnee coor;
-        vector<int> voisins; // lieux voisins (arretes sortantes)
-        mutable bool visite;
+        vector<int> voisins; // lieux voisins (sommets des arretes sortantes)
+        // mutable bool visite; pas utilisé ! // todo retirer
     };
 
     map<string, unsigned int> indices;
-    vector<Lieu> lieux;
+    vector<Lieu> lieux; // sommets du graphe
 
     void ajouterAreteNonOrientee(const int io, const int id);
 
@@ -57,9 +56,9 @@ private:
 
     double distanceDirecte(int const indiceorigine, int const indicedestination);
 
-    std::list<int> DijkstraChemin(int vertex, const std::vector<int> &parents)const;
-
     void DijkstraAlgorithm(int const iOrigine, vector<double> &distancesmin, vector<int> &parents) const;
+
+    void DijkstraChemin(int indexLieu, vector<int> const &parents, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
 };
 
 #endif

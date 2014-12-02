@@ -19,12 +19,12 @@ void Carte::ajouterLieu(const string &nomlieu, const Coordonnee &c) {
 }
 
 void Carte::ajouterRoute(const string &nomroute, const list<string> &route) {
-    // À compléter.
     // Exemple de ligne dans une carte : «Jeanne-Mance : a b c d ; »
     // Donc, route est une séquence (liste) : <a, b, c, d, e>.
     // Il faut alors ajouter les segments de route (arêtes/arcs) : (a,b), (b,c), (c,d), (d,e).
     // Il ne faut pas ajouter (e,d), (d,c), (c,b), (b,a).
     // Les sens uniques doivent être considérées.
+    // todo ajouter nom de routes
     int io, id; // indice origine et destination
     list<string>::const_iterator it = route.begin();
     io = indices.at(*it);
@@ -59,10 +59,7 @@ double Carte::calculerTrajet(const string &nomorigine, const list<string> &nomsd
 
 double Carte::calculerChemin(const string &nomorigine, const string &nomdestination,
         std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
-    // À compléter.
-    //
-    // todo:
-    // 1)utiliser djiktra ou A* pour les distances entres les diff/rentes destination
+    // todo: 1)utiliser djiktra ou A* pour les distances entres les différentes destination
 
     std::vector<double> distances;
     std::vector<int> parents;
@@ -72,27 +69,18 @@ double Carte::calculerChemin(const string &nomorigine, const string &nomdestinat
 
     DijkstraAlgorithm(iOrigine, distances, parents);
 
-
-    std::cout << "Distance de " << nomorigine << " a " << nomdestination << " " << distances[iDestination] << std::endl;
-    std::list<int> chemin = DijkstraChemin(iDestination, parents);
-    std::cout << "chemin : ";
-    //std::copy(chemin.begin(), chemin.end(), std::ostream_iterator<int>(std::cout, " "));
-    for (std::list<int>::iterator it = chemin.begin(); it != chemin.end(); ++it ){
-        cout << lieux[*it].nomlieu << " ";
-    }
-    std::cout << std::endl;
-
+    DijkstraChemin(iDestination, parents, out_cheminnoeuds, out_cheminroutes);
 
     return distances[iDestination];
 }
 
 
-// todo changer list<int> en list<string>
-std::list<int> Carte::DijkstraChemin(int indexLieu, const std::vector<int> &parents)const {
-    std::list<int> chemin;
-    for (; indexLieu != -1; indexLieu = parents[indexLieu])
-        chemin.push_front(indexLieu);
-    return chemin;
+void Carte::DijkstraChemin(int indexLieu, const std::vector<int> &parents, std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
+    if (!out_cheminnoeuds.empty()) indexLieu = parents[indexLieu];
+    for (; indexLieu != -1; indexLieu = parents[indexLieu]) {
+        out_cheminnoeuds.push_front(lieux[indexLieu].nomlieu);
+        // todo ajouter noms de routes
+    }
 }
 
 void Carte::DijkstraAlgorithm(const int iOrigine, vector<double> &distances, vector<int> &parents) const {
@@ -106,39 +94,40 @@ void Carte::DijkstraAlgorithm(const int iOrigine, vector<double> &distances, vec
 
     distances[iOrigine] = 0;
 
-    set<int > filePrioritaire;
+    set<int> filePrioritaire; // todo : utiliser une fileprioritaire ? ou de fibonachi ?
     filePrioritaire.insert(iOrigine);
 
     while (!filePrioritaire.empty()) {
         int v = *filePrioritaire.begin();
         double distance = distances[v];
         filePrioritaire.erase(filePrioritaire.begin());
-        //
 
         //std::cout << "active indexLieu " << v << " distance " << distance << std::endl;
 
         Coordonnee const &coorV = lieux[v].coor;
-        // pour tout edge e = (v,w) depuis sommet v
+        // pour toutes les arretes (v,w) depuis sommet v
         const std::vector<int> &voisins = lieux[v].voisins;
         for (int w : voisins) {
 
-            double d = distance + lieux[w].coor.distance(coorV);;
+            // la distance est calcule ici plutot que lors de la creation du graphe : on ne calcule que les sommets visites
+            // signifie moins de memoire et moins de calculs
+            double d = distance + lieux[w].coor.distance(coorV);
 
             if (d < distances[w]) {
-                filePrioritaire.erase(w);
+                filePrioritaire.erase(w); // different de la version des notes de cours // todo a verifier
                 parents[w] = v;
                 distances[w] = d;
                 filePrioritaire.insert(w);
             }
-           // for (unsigned int j = 0; j < distances.size(); ++j) {
-           //     std::cout << j << " d = " << distances[j] << ", ";
-           // }
-           // std::cout << std::endl;
+            // for (unsigned int j = 0; j < distances.size(); ++j) {
+            //     std::cout << j << " d = " << distances[j] << ", ";
+            // }
+            // std::cout << std::endl;
         }
     }
 }
 
-// afficher les données de la carte //todo retirer avant la remise
+// afficher les données de la carte
 ostream &operator<<(ostream &os, Carte &carte) {
 
     for (unsigned int v = 0; v < carte.lieux.size(); ++v) {
