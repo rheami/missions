@@ -16,19 +16,23 @@
 
 class Coordonnee {
 
-  public:
-    Coordonnee(){}
+public:
+    Coordonnee() {
+    }
+
     Coordonnee(double latitude_, double longitude_);
-    Coordonnee(const Coordonnee&);
 
-    double distance(const Coordonnee&) const;
+    Coordonnee(const Coordonnee &);
 
-  private:
+    double distance(const Coordonnee &) const;
+
+private:
     double latitude;
     double longitude;
 
-  friend std::ostream& operator << (std::ostream&, const Coordonnee&);
-  friend std::istream& operator >> (std::istream&, Coordonnee&);
+    friend std::ostream &operator<<(std::ostream &, const Coordonnee &);
+
+    friend std::istream &operator>>(std::istream &, Coordonnee &);
 };
 
 #endif

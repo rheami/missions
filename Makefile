@@ -7,7 +7,7 @@ OPTIONS = -Wall
 #OPTIONS = -g -O0 -Wall
 
 #Option -O2 pour le code optimisé
-OPTIONS = -O2 -Wall
+OPTIONS = -O2 -Wall -std=c++11
 
 # Syntaxe : cible : dépendance1 dépendance2 ...
 # Ensuite, la ou les ligne(s) débutant par une tabulation (\t) donne les commandes pour construire une cible

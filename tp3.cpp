@@ -13,40 +13,38 @@
 
 using namespace std;
 
-void tp3(Carte& carte, istream& ismissions)
-{
-    while(ismissions){
+void tp3(Carte &carte, istream &ismissions) {
+    while (ismissions) {
         string nomlieuaffaire;
         char deuxpoints = 0;
         ismissions >> nomlieuaffaire >> deuxpoints;
-        if(!ismissions) break;
-        assert(deuxpoints==':');
+        if (!ismissions) break;
+        assert(deuxpoints == ':');
         list<string> destinations;
-        while(ismissions){
+        while (ismissions) {
             string destination;
             ismissions >> destination; // ne pas ajouter « >> std::std » ici.
-            if(destination==";" || !ismissions) break;
-            assert(destination.find(";")==string::npos);
+            if (destination == ";" || !ismissions) break;
+            assert(destination.find(";") == string::npos);
             destinations.push_back(destination);
         }
-        
+
         list<string> chemin_noeuds, chemin_routes;
         double distance = carte.calculerTrajet(nomlieuaffaire, destinations, chemin_noeuds, chemin_routes);
-        
-        for(list<string>::const_iterator iter=chemin_noeuds.begin();iter!=chemin_noeuds.end();++iter)
+
+        for (list<string>::const_iterator iter = chemin_noeuds.begin(); iter != chemin_noeuds.end(); ++iter)
             cout << *iter << " ";
         cout << endl;
-        for(list<string>::const_iterator iter=chemin_routes.begin();iter!=chemin_routes.end();++iter)
+        for (list<string>::const_iterator iter = chemin_routes.begin(); iter != chemin_routes.end(); ++iter)
             cout << *iter << " ";
         cout << endl;
         cout << round(distance) << " m" << endl;
     }
-    
+
 }
 
-int main(int argc, const char** argv)
-{
-    if(argc<=1 || argc>3){
+int main(int argc, const char **argv) {
+    if (argc <= 1 || argc > 3) {
         cout << "Syntaxe: ./tp3 carte.txt [missions.txt]" << endl;
         return 1;
     }
@@ -54,27 +52,28 @@ int main(int argc, const char** argv)
     Carte carte;
     {
         ifstream fichiercarte(argv[1]);
-        if(fichiercarte.fail()){
-            cout << "Erreur ouverture du fichier : " << argv[1] << endl;    
+        if (fichiercarte.fail()) {
+            cout << "Erreur ouverture du fichier : " << argv[1] << endl;
             return 2;
         }
         fichiercarte >> carte;
     }
 
     // affichage du graphe de la carte
+    if (argc == 2) {
+        cout << "affichage du graphe de la carte : \n" << carte;
+        return 0;
+    }
 
-
-    cout << "affichage du graphe de la carte : \n" << carte;
-
-    if(argc>2){
+    if (argc > 2) {
         // Lecture des missions depuis un fichier.
         ifstream ismissions(argv[2]);
-        if(ismissions.fail()){
+        if (ismissions.fail()) {
             cout << "Erreur d'ouverture du fichier : " << argv[2] << endl;
             return 3;
-        }else
+        } else
             tp3(carte, ismissions);
-    }else{
+    } else {
         // Lecture depuis stdin (console).
         tp3(carte, cin);
     }
