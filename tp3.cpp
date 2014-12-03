@@ -60,7 +60,7 @@ int main(int argc, const char **argv) {
     }
 
     // affichage du graphe de la carte
-    if (argc == 2) {
+    if (argc == 7) {
         cout << "affichage du graphe de la carte : \n" << carte;
         return 0;
     }
