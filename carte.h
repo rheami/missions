@@ -22,7 +22,7 @@ using namespace std;
 class Carte {
 public:
 
-    void ajouterLieu(const string &nom, const Coordonnee &c);
+    void ajouterLieu(string const &nomlieu, const Coordonnee &coordonnee);
 
     void ajouterRoute(const string &nom, const list<string> &noms);
 
@@ -37,18 +37,17 @@ private:
     struct Lieu { // sommet
         string nomlieu;
 
-        Lieu(const string &nomlieu_, const Coordonnee &c_) : nomlieu(nomlieu_), coor(c_) {
-        }
+        Coordonnee coordonnee;
 
-        Coordonnee coor;
-        vector<int> voisins; // lieux voisins (sommets des arretes sortantes)
+        vector<int> aretes;    // aretes (sommets des aretes sortantes)
+        vector<string> routes; // nom des routes des aretes (meme indice)
         // mutable bool visite; pas utilisé ! // todo retirer
     };
 
     map<string, unsigned int> indices;
     vector<Lieu> lieux; // sommets du graphe
 
-    void ajouterAreteNonOrientee(const int io, const int id);
+    void ajouterArete(const int io, const int id, string const &nomRoute);
 
     friend istream &operator>>(istream &is, Carte &carte);
 
@@ -59,6 +58,8 @@ private:
     void DijkstraAlgorithm(int const iOrigine, vector<double> &distancesmin, vector<int> &parents) const;
 
     void DijkstraChemin(int indexLieu, vector<int> const &parents, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
+
+
 };
 
 #endif
