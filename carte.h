@@ -15,6 +15,7 @@
 #include <vector>
 #include <queue>
 #include <string>
+#include <verto.h>
 #include "coordonnee.h"
 
 using namespace std;
@@ -44,7 +45,7 @@ private:
         // mutable bool visite; pas utilisé ! // todo retirer
     };
 
-    map<string, unsigned int> indices;
+    map<string, unsigned int> indices; // todo changer pour unorderd_map O(1)
     vector<Lieu> lieux; // sommets du graphe
 
     void ajouterArete(const int io, const int id, string const &nomRoute);
@@ -53,13 +54,20 @@ private:
 
     friend ostream &operator<<(ostream &os, Carte &carte);
 
-    double distanceDirecte(int const indiceorigine, int const indicedestination);
+    inline double distanceEuclidienne(int const iOrigine, int const iDestination) const {
+        Coordonnee const &coordonneeD = lieux[iDestination].coordonnee;
+        return lieux[iOrigine].coordonnee.distance(coordonneeD);
 
-    void DijkstraAlgorithm(int const iOrigine, vector<double> &distancesmin, vector<int> &parents) const;
+    }
 
-    void DijkstraChemin(int indexLieu, vector<int> const &parents, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
+    void DijkstraAlgorithm(int const iOrigine,int const iDestination, vector<double> &distancesmin, vector<int> &parents) const;
+
+    void DijkstraChemin(int iorigine, vector<int> const &parents, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
 
 
+    inline double heuristique(int const iOrigine, int const iDestination) const {
+        return distanceEuclidienne(iOrigine, iDestination);
+    };
 };
 
 #endif

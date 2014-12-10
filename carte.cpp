@@ -6,14 +6,14 @@
 
 #include "carte.h"
 #include <limits>
-#include <bits/stream_iterator.h>
+#include "filePrioritaire.h"
 
 const double INFINI = std::numeric_limits<double>::infinity();
 int const &INDEFINI = -1;
 
 void Carte::ajouterLieu(const string &nomlieu, const Coordonnee &coordonnee) {
     lieux.push_back(Lieu());
-    int indice = indices.size();
+    int indice = lieux.size();
     lieux[indice].nomlieu = nomlieu;
     lieux[indice].coordonnee = coordonnee;
     indices[nomlieu] = indice;
@@ -68,7 +68,7 @@ double Carte::calculerChemin(const string &nomorigine, const string &nomdestinat
     const int iOrigine = indices.at(nomorigine);
     const int iDestination = indices.at(nomdestination);
 
-    DijkstraAlgorithm(iOrigine, distances, parents);
+    DijkstraAlgorithm(iOrigine, iDestination, distances, parents);
 
     DijkstraChemin(iDestination, parents, out_cheminnoeuds, out_cheminroutes);
 
@@ -76,32 +76,32 @@ double Carte::calculerChemin(const string &nomorigine, const string &nomdestinat
 }
 
 
-void Carte::DijkstraChemin(int indexLieu, const std::vector<int> &parents, std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
-    //if (!out_cheminnoeuds.empty()) indexLieu = parents[indexLieu];
+void Carte::DijkstraChemin(int iorigine, const std::vector<int> &parents, std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
+    //if (!out_cheminnoeuds.empty()) iorigine = parents[iorigine];
     int suivant = -1;
-    for (; indexLieu != -1; indexLieu = parents[indexLieu]) {
-        if (lieux[indexLieu].nomlieu != out_cheminnoeuds.front()){
-            out_cheminnoeuds.push_front(lieux[indexLieu].nomlieu);
+    for (; iorigine != -1; iorigine = parents[iorigine]) {
+        if (lieux[iorigine].nomlieu != out_cheminnoeuds.front()){
+            out_cheminnoeuds.push_front(lieux[iorigine].nomlieu);
         }
 
         // ajouter noms de routes
         if (suivant != -1) {
             unsigned int i = 0;
-            std::vector<int> voisins = lieux[indexLieu].aretes;
+            std::vector<int> voisins = lieux[iorigine].aretes;
             for (; i != voisins.size(); ++i) { // cherche dans un tableau de 4 environ
                 if (voisins[i] == suivant) break;
             }
             assert(i != voisins.size()); // la route est dans le tableau
-            string nomroute = lieux[indexLieu].routes[i];
+            string nomroute = lieux[iorigine].routes[i];
             if (nomroute != out_cheminroutes.front()){
                 out_cheminroutes.push_front(nomroute);
             }
         }
-        suivant = indexLieu;
+        suivant = iorigine;
     }
 }
 
-void Carte::DijkstraAlgorithm(const int iOrigine, vector<double> &distances, vector<int> &parents) const {
+void Carte::DijkstraAlgorithm(const int iOrigine, const int iDestination,  vector<double> &distances, vector<int> &parents) const {
     // distances[v] <- infini
     distances.clear();
     distances.resize(lieux.size(), INFINI);
@@ -110,32 +110,36 @@ void Carte::DijkstraAlgorithm(const int iOrigine, vector<double> &distances, vec
     parents.clear();
     parents.resize(lieux.size(), INDEFINI);
 
-    distances[iOrigine] = 0;
+    distances[iOrigine] = 0.0;
 
-    set<int> filePrioritaire; // todo : utiliser une fileprioritaire ? ou de fibonachi ?
-    filePrioritaire.insert(iOrigine);
+    FilePrioritaire<int, double> filePrioritaire; // zone exploree // todo : utiliser une file de fibonachi O(1)
 
-    while (!filePrioritaire.empty()) {
-        int v = *filePrioritaire.begin();
-        double distance = distances[v];
-        filePrioritaire.erase(filePrioritaire.begin());
+    filePrioritaire.inserer(iOrigine, 0.0);
+
+    while (!filePrioritaire.estVide()) {
+
+        auto v = filePrioritaire.enleverMinimum();
+        
+        if (v == iDestination) { 
+            break;
+        }
+        
+        double distance_a_v = distances[v];
 
         //std::cout << "active indexLieu " << v << " distance " << distance << std::endl;
 
-        Coordonnee const &coordonneeV = lieux[v].coordonnee;
         // pour toutes les arretes (v,w) depuis sommet v
         const std::vector<int> &voisins = lieux[v].aretes;
         for (unsigned int i = 0; i < voisins.size(); i++) {
-            int w=voisins[i];
+            const int w=voisins[i];
             // la distance est calcule ici plutot que lors de la creation du graphe : on ne calcule que les sommets visites
             // signifie moins de memoire et moins de calculs
-            double d = distance + lieux[w].coordonnee.distance(coordonneeV);
-
+            double d = distance_a_v + distanceEuclidienne(v, w);
             if (d < distances[w]) {
-                filePrioritaire.erase(w); // different de la version des notes de cours // todo a verifier
-                parents.at(w) = v;
                 distances[w] = d;
-                filePrioritaire.insert(w);
+                parents.at(w) = v;
+                const double &prioritee = d + heuristique(w, iDestination); // A* ou DijkstraAlgorithm si heuristque = 0
+                filePrioritaire.inserer(w, prioritee); // ou modifier la priorite si possible
             }
             // for (unsigned int j = 0; j < distances.size(); ++j) {
             //     std::cout << j << " d = " << distances[j] << ", ";

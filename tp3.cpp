@@ -6,11 +6,11 @@
 
 #include <fstream>
 #include <iostream>
-#include <string>
 #include <list>
 #include <math.h>
 #include "carte.h"
 
+char const *const string1 = "out";
 using namespace std;
 
 void tp3(Carte &carte, istream &ismissions) {
@@ -48,6 +48,7 @@ int main(int argc, const char **argv) {
         cout << "Syntaxe: ./tp3 carte.txt [missions.txt]" << endl;
         return 1;
     }
+
     // Lecture de la carte.
     Carte carte;
     {
@@ -59,8 +60,8 @@ int main(int argc, const char **argv) {
         fichiercarte >> carte;
     }
 
-    // affichage du graphe de la carte
-    if (argc == 7) {
+    // affichage du graphe de la carte.
+    if (argv[2]== string1) {
         cout << "affichage du graphe de la carte : \n" << carte;
         return 0;
     }
