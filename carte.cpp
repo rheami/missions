@@ -13,7 +13,7 @@ int const &INDEFINI = -1;
 
 void Carte::ajouterLieu(const string &nomlieu, const Coordonnee &coordonnee) {
     lieux.push_back(Lieu());
-    int indice = lieux.size();
+    int indice = lieux.size()-1;
     lieux[indice].nomlieu = nomlieu;
     lieux[indice].coordonnee = coordonnee;
     indices[nomlieu] = indice;
@@ -68,15 +68,15 @@ double Carte::calculerChemin(const string &nomorigine, const string &nomdestinat
     const int iOrigine = indices.at(nomorigine);
     const int iDestination = indices.at(nomdestination);
 
-    DijkstraAlgorithm(iOrigine, iDestination, distances, parents);
+    AStarAlgorithm(iOrigine, iDestination, distances, parents);
 
-    DijkstraChemin(iDestination, parents, out_cheminnoeuds, out_cheminroutes);
+    chemin(iDestination, parents, out_cheminnoeuds, out_cheminroutes);
 
     return distances[iDestination];
 }
 
 
-void Carte::DijkstraChemin(int iorigine, const std::vector<int> &parents, std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
+void Carte::chemin(int iorigine, const std::vector<int> &parents, std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
     //if (!out_cheminnoeuds.empty()) iorigine = parents[iorigine];
     int suivant = -1;
     for (; iorigine != -1; iorigine = parents[iorigine]) {
@@ -101,7 +101,7 @@ void Carte::DijkstraChemin(int iorigine, const std::vector<int> &parents, std::l
     }
 }
 
-void Carte::DijkstraAlgorithm(const int iOrigine, const int iDestination,  vector<double> &distances, vector<int> &parents) const {
+void Carte::AStarAlgorithm(const int iOrigine, const int iDestination, vector<double> &distances, vector<int> &parents) const {
     // distances[v] <- infini
     distances.clear();
     distances.resize(lieux.size(), INFINI);
