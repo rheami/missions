@@ -46,27 +46,53 @@ void Carte::ajouterArete(int io, int id, string const &nomroute) {
 double Carte::calculerTrajet(const string &nomorigine, const list<string> &nomsdestinations,
         std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
     // À compléter. La version actuelle génère un trajet valide, mais généralement non optimal pour plusieurs destinations.
-    // todo: creer un graphe des destinations (avec les distances calcules en 1) et calculer le minimum hamilton cycle ? parcourt min en passant par chaques
 
-    string position = nomorigine;
+    std::set<int> destinations = getIndices(nomorigine, nomsdestinations);
+
+    int iOrigine= indices.at(nomorigine);
+    int iCourent= iOrigine;
+    int lepluspres;
     double total = 0;
-    for (list<string>::const_reverse_iterator iter = nomsdestinations.rbegin(); iter != nomsdestinations.rend(); ++iter) {
-        total += calculerChemin(*iter, position, out_cheminnoeuds, out_cheminroutes);
-        position = *iter;
+    for (unsigned int i = 0; i < destinations.size(); ++i){
+        lepluspres = -1;
+        double distanceMin = INFINI;
+        std::vector<double> distances;
+        std::vector<int> parents;
+        cout << " le plus pres de " << lieux[iCourent].nomlieu << endl;
+        for (int it : destinations){
+            cout << it << " - ";
+            if (it!=iCourent && destinations.find(it)!=destinations.end()){
+                AStarAlgorithm(iCourent, it, distances, parents); // on peut arreter si > distanceMin
+                double distance = distances[it];
+                cout << "distance a " << lieux[it].nomlieu << " = " << distance << endl;
+                if (distance < distanceMin){
+                    distanceMin = distance;
+                    lepluspres = it;
+                }
+            }
+        }
+        if (lepluspres != -1) {
+            chemin(lepluspres, parents, out_cheminnoeuds, out_cheminroutes);
+            destinations.erase(lepluspres);
+
+            total += distances[lepluspres];
+            iCourent = lepluspres;
+        }
+
     }
-    total += calculerChemin(nomorigine, position, out_cheminnoeuds, out_cheminroutes);
+    if (lepluspres == -1) { // retourne au point de depart
+        iCourent = *destinations.begin();
+        total += calculerChemin(iCourent, iOrigine, out_cheminnoeuds, out_cheminroutes);
+
+    }
     return total;
 }
 
-double Carte::calculerChemin(const string &nomorigine, const string &nomdestination,
+double Carte::calculerChemin(const int iOrigine, const int iDestination,
         std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
-    // todo: 1)utiliser djiktra ou A* pour les distances entres les différentes destination
 
     std::vector<double> distances;
     std::vector<int> parents;
-
-    const int iOrigine = indices.at(nomorigine);
-    const int iDestination = indices.at(nomdestination);
 
     AStarAlgorithm(iOrigine, iDestination, distances, parents);
 
@@ -126,25 +152,17 @@ void Carte::AStarAlgorithm(const int iOrigine, const int iDestination, vector<do
         
         double distance_a_v = distances[v];
 
-        //std::cout << "active indexLieu " << v << " distance " << distance << std::endl;
-
         // pour toutes les arretes (v,w) depuis sommet v
         const std::vector<int> &voisins = lieux[v].aretes;
         for (unsigned int i = 0; i < voisins.size(); i++) {
             const int w=voisins[i];
-            // la distance est calcule ici plutot que lors de la creation du graphe : on ne calcule que les sommets visites
-            // signifie moins de memoire et moins de calculs
             double d = distance_a_v + distanceEuclidienne(v, w);
             if (d < distances[w]) {
                 distances[w] = d;
                 parents.at(w) = v;
-                const double &prioritee = d + heuristique(w, iDestination); // A* ou DijkstraAlgorithm si heuristque = 0
+                const double &prioritee = d + heuristique(w, iDestination); // A* ou DijkstraAlgorithm si heuristique = 0
                 filePrioritaire.inserer(w, prioritee); // ou modifier la priorite si possible
             }
-            // for (unsigned int j = 0; j < distances.size(); ++j) {
-            //     std::cout << j << " d = " << distances[j] << ", ";
-            // }
-            // std::cout << std::endl;
         }
     }
 }
@@ -204,3 +222,16 @@ istream &operator>>(istream &is, Carte &carte) {
 
     return is;
 }
+
+set<int> Carte::getIndices(string const &nomorigine, list<string> const &nomdestinations)const {
+    std::set<int> destinations;
+
+    destinations.insert(indices.at(nomorigine));
+    for (auto it : nomdestinations) {
+        destinations.insert(indices.at(it));
+    }
+
+    return destinations;
+}
+
+

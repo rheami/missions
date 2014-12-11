@@ -10,7 +10,6 @@
 #include <math.h>
 #include "carte.h"
 
-char const *const string1 = "out";
 using namespace std;
 
 void tp3(Carte &carte, istream &ismissions) {
@@ -61,7 +60,7 @@ int main(int argc, const char **argv) {
     }
 
     // affichage du graphe de la carte.
-    if (argv[2]== string1) {
+    if (false) {
         cout << "affichage du graphe de la carte : \n" << carte;
         return 0;
     }

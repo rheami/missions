@@ -30,7 +30,7 @@ public:
     double calculerTrajet(const string &origine, const list<string> &destination,
             std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const;
 
-    double calculerChemin(const string &origine, const string &destination,
+    double calculerChemin(const int origine, const int destination,
             std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const;
 
 private:
@@ -42,7 +42,8 @@ private:
 
         vector<int> aretes;    // aretes (sommets des aretes sortantes)
         vector<string> routes; // nom des routes des aretes (meme indice)
-        // mutable bool visite; pas utilisé ! // todo retirer
+        vector<int> destinations;
+        mutable bool visite;
     };
 
     map<string, unsigned int> indices; // todo changer pour unorderd_map O(1)
@@ -68,6 +69,10 @@ private:
     inline double heuristique(int const iOrigine, int const iDestination) const {
         return distanceEuclidienne(iOrigine, iDestination);
     };
+
+    set<int> getIndices(string const &nomorigine, list<string> const &nomdestinations)const;
+
+    int trouveLePlusPres(int origine, set<int> vector1) const;
 };
 
 #endif
