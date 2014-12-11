@@ -63,7 +63,7 @@ private:
 
     void AStarAlgorithm(int const iOrigine, int const iDestination, vector<double> &distancesmin, vector<int> &parents) const;
 
-    void chemin(int iorigine, vector<int> const &parents, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
+    void chemin(int courant, vector<int> const &parents, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
 
 
     inline double heuristique(int const iOrigine, int const iDestination) const {

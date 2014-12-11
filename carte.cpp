@@ -50,41 +50,38 @@ double Carte::calculerTrajet(const string &nomorigine, const list<string> &nomsd
     std::set<int> destinations = getIndices(nomorigine, nomsdestinations);
 
     int iOrigine= indices.at(nomorigine);
-    int iCourent= iOrigine;
+    int courent = iOrigine;
     int lepluspres;
     double total = 0;
-    for (unsigned int i = 0; i < destinations.size(); ++i){
-        lepluspres = -1;
+    for (; courent != INDEFINI; courent = lepluspres){
+        lepluspres = INDEFINI;
         double distanceMin = INFINI;
         std::vector<double> distances;
         std::vector<int> parents;
-        cout << " le plus pres de " << lieux[iCourent].nomlieu << endl;
-        for (int it : destinations){
-            cout << it << " - ";
-            if (it!=iCourent && destinations.find(it)!=destinations.end()){
-                AStarAlgorithm(iCourent, it, distances, parents); // on peut arreter si > distanceMin
-                double distance = distances[it];
-                cout << "distance a " << lieux[it].nomlieu << " = " << distance << endl;
+        cerr << " le plus pres de " << lieux[courent].nomlieu << endl;
+        for (int it2 : destinations){
+            if (it2!= courent && destinations.find(it2)!=destinations.end()){
+                AStarAlgorithm(it2, courent, distances, parents); // on boucle a l envers : plus court retour // on peut arreter si > distanceMin
+                double distance = distances[courent];
+                cerr << "distance " << lieux[it2].nomlieu << " a " << lieux[courent].nomlieu << " = " << distance << endl;
                 if (distance < distanceMin){
                     distanceMin = distance;
-                    lepluspres = it;
+                    lepluspres = it2;
                 }
             }
         }
-        if (lepluspres != -1) {
+        if (lepluspres != INDEFINI) {
             chemin(lepluspres, parents, out_cheminnoeuds, out_cheminroutes);
+            cerr << "retire " << lieux[lepluspres].nomlieu;
             destinations.erase(lepluspres);
-
             total += distances[lepluspres];
-            iCourent = lepluspres;
         }
-
     }
-    if (lepluspres == -1) { // retourne au point de depart
-        iCourent = *destinations.begin();
-        total += calculerChemin(iCourent, iOrigine, out_cheminnoeuds, out_cheminroutes);
+    // point de depart au premier
+    assert(destinations.size()==0);
+    courent = *destinations.begin() + 1;
+    total += calculerChemin(iOrigine, courent, out_cheminnoeuds, out_cheminroutes);
 
-    }
     return total;
 }
 
@@ -102,28 +99,30 @@ double Carte::calculerChemin(const int iOrigine, const int iDestination,
 }
 
 
-void Carte::chemin(int iorigine, const std::vector<int> &parents, std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
+void Carte::chemin(int courant, const std::vector<int> &parents, std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
     //if (!out_cheminnoeuds.empty()) iorigine = parents[iorigine];
-    int suivant = -1;
-    for (; iorigine != -1; iorigine = parents[iorigine]) {
-        if (lieux[iorigine].nomlieu != out_cheminnoeuds.front()){
-            out_cheminnoeuds.push_front(lieux[iorigine].nomlieu);
+    int suivant = INDEFINI;
+    for (; courant != INDEFINI; courant = parents[courant]) { // de la destination en remontant vers l origine
+        // ajouter les noeuds
+        if (lieux[courant].nomlieu != out_cheminnoeuds.front()){
+            out_cheminnoeuds.push_front(lieux[courant].nomlieu);
         }
 
         // ajouter noms de routes
-        if (suivant != -1) {
+        if (suivant != INDEFINI) {
             unsigned int i = 0;
-            std::vector<int> voisins = lieux[iorigine].aretes;
-            for (; i != voisins.size(); ++i) { // cherche dans un tableau de 4 environ
+            std::vector<int> voisins = lieux[courant].aretes;
+
+            for (; i != voisins.size(); ++i) { // cherche dans un tableau de 4 environ // utiliser un unordered set ?
                 if (voisins[i] == suivant) break;
             }
             assert(i != voisins.size()); // la route est dans le tableau
-            string nomroute = lieux[iorigine].routes[i];
+            string nomroute = lieux[courant].routes[i];
             if (nomroute != out_cheminroutes.front()){
                 out_cheminroutes.push_front(nomroute);
             }
         }
-        suivant = iorigine;
+        suivant = courant;
     }
 }
 
@@ -226,7 +225,7 @@ istream &operator>>(istream &is, Carte &carte) {
 set<int> Carte::getIndices(string const &nomorigine, list<string> const &nomdestinations)const {
     std::set<int> destinations;
 
-    destinations.insert(indices.at(nomorigine));
+    //destinations.insert(indices.at(nomorigine));
     for (auto it : nomdestinations) {
         destinations.insert(indices.at(it));
     }
