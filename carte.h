@@ -16,6 +16,7 @@
 #include <queue>
 #include <string>
 #include <verto.h>
+#include <unordered_map>
 #include "coordonnee.h"
 
 using namespace std;
@@ -63,9 +64,9 @@ private:
 
     }
 
-    void AStarAlgorithm(int const origine, int const destination, vector<double> &distancesmin, vector<int> &parents) const;
+    double AStarAlgorithm(int const origine, int const destination, unordered_map<int, int> &parents) const;
 
-    void chemin(int courant, vector<int> const &parents, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
+    void chemin(int courant, unordered_map<int, int> parents, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
 
 
     inline double heuristique(int const iOrigine, int const iDestination) const {

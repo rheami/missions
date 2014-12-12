@@ -29,7 +29,7 @@ void tp3(Carte &carte, istream &ismissions) {
         }
 
         list<string> chemin_noeuds, chemin_routes;
-        double distance = carte.calculerTrajet_2(nomlieuaffaire, destinations, chemin_noeuds, chemin_routes);
+        double distance = carte.calculerTrajet_1(nomlieuaffaire, destinations, chemin_noeuds, chemin_routes);
 
         for (list<string>::const_iterator iter = chemin_noeuds.begin(); iter != chemin_noeuds.end(); ++iter)
             cout << *iter << " ";

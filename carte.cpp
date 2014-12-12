@@ -6,6 +6,7 @@
 
 #include "carte.h"
 #include <limits>
+#include <unordered_map>
 #include "filePrioritaire.h"
 
 const double INFINI = std::numeric_limits<double>::infinity();
@@ -110,19 +111,19 @@ double Carte::calculerTrajet_2(const string &nomorigine, const list<string> &nom
 double Carte::calculerChemin(const int iOrigine, const int iDestination,
         std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
 
-    std::vector<double> distances;
-    std::vector<int> parents;
 
-    AStarAlgorithm(iOrigine, iDestination, distances, parents);
+    std::unordered_map<int, int> parents;
+
+    double distance = AStarAlgorithm(iOrigine, iDestination, parents);
 
     chemin(iDestination, parents, out_cheminnoeuds, out_cheminroutes);
 
-    return distances[iDestination];
+    return distance;
 }
 
 
-void Carte::chemin(int courant, const std::vector<int> &parents, std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
-    //if (!out_cheminnoeuds.empty()) iorigine = parents[iorigine];
+void Carte::chemin(int courant, unordered_map<int, int> parents, std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
+
     int suivant = INDEFINI;
     for (; courant != INDEFINI; courant = parents[courant]) { // de la destination en remontant vers l origine
         // ajouter les noeuds
@@ -157,16 +158,18 @@ void Carte::chemin(int courant, const std::vector<int> &parents, std::list<strin
 
 }
 
-void Carte::AStarAlgorithm(const int origine, const int destination, vector<double> &distances, vector<int> &parents) const {
+double Carte::AStarAlgorithm(const int origine, const int destination, unordered_map<int, int> &parents) const {
     std::cerr << "A * algo" << endl;
     // distances[v] <- infini
-    distances.clear();
-    distances.resize(lieux.size(), INFINI);
+    std::unordered_map<int, double> distances;
+    // distances.clear();
+    //distances.resize(lieux.size(), INFINI);
+
 
     // parents[v] <- indefini
-    parents.clear();
-    parents.resize(lieux.size(), INDEFINI);
-
+    //parents.clear();
+    //parents.resize(lieux.size(), INDEFINI);
+    parents[origine] = INDEFINI;
     distances[origine] = 0.0;
 
     FilePrioritaire<int, double> filePrioritaire; // zone exploree // todo : utiliser une file de fibonachi O(1)
@@ -177,7 +180,7 @@ void Carte::AStarAlgorithm(const int origine, const int destination, vector<doub
 
         auto v = filePrioritaire.enleverMinimum();
 
-        if (distances[v] == INFINI)  break;
+        //if (distances[v] == INFINI)  break;
         if (v == destination)  break;
         
         double distance_v = distances[v];
@@ -187,7 +190,7 @@ void Carte::AStarAlgorithm(const int origine, const int destination, vector<doub
         for (unsigned int i = 0; i < voisins.size(); i++) {
             const int w=voisins[i];
             double d = distance_v + distanceEuclidienne(v, w);
-            if (d < distances[w]) {
+            if (!distances.count(w) || d < distances[w]) {
                 parents[w] = v;
                 distances[w] = d;
                 const double &prioritee = d ;//+ heuristique(w, iDestination); // A* ou DijkstraAlgorithm si heuristique = 0
@@ -195,6 +198,7 @@ void Carte::AStarAlgorithm(const int origine, const int destination, vector<doub
             }
         }
     }
+    return distances[destination];
 }
 
 // afficher les données de la carte
