@@ -29,7 +29,7 @@ void tp3(Carte &carte, istream &ismissions) {
         }
 
         list<string> chemin_noeuds, chemin_routes;
-        double distance = carte.calculerTrajet(nomlieuaffaire, destinations, chemin_noeuds, chemin_routes);
+        double distance = carte.calculerTrajet_2(nomlieuaffaire, destinations, chemin_noeuds, chemin_routes);
 
         for (list<string>::const_iterator iter = chemin_noeuds.begin(); iter != chemin_noeuds.end(); ++iter)
             cout << *iter << " ";
@@ -43,7 +43,7 @@ void tp3(Carte &carte, istream &ismissions) {
 }
 
 int main(int argc, const char **argv) {
-    if (argc <= 1 || argc > 3) {
+    if (argc <= 1 || argc > 4) {
         cout << "Syntaxe: ./tp3 carte.txt [missions.txt]" << endl;
         return 1;
     }
@@ -60,7 +60,7 @@ int main(int argc, const char **argv) {
     }
 
     // affichage du graphe de la carte.
-    if (false) {
+    if (argc == 4) {
         cout << "affichage du graphe de la carte : \n" << carte;
         return 0;
     }

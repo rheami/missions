@@ -27,8 +27,10 @@ public:
 
     void ajouterRoute(const string &nom, const list<string> &noms);
 
-    double calculerTrajet(const string &origine, const list<string> &destination,
-            std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const;
+    double calculerTrajet_1(string const &nomorigine, list<string> const &nomsdestinations, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
+
+    double calculerTrajet_2(string const &nomorigine, list<string> const &nomsdestinations, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
+
 
     double calculerChemin(const int origine, const int destination,
             std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const;
@@ -61,7 +63,7 @@ private:
 
     }
 
-    void AStarAlgorithm(int const iOrigine, int const iDestination, vector<double> &distancesmin, vector<int> &parents) const;
+    void AStarAlgorithm(int const origine, int const destination, vector<double> &distancesmin, vector<int> &parents) const;
 
     void chemin(int courant, vector<int> const &parents, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
 
@@ -73,6 +75,8 @@ private:
     set<int> getIndices(string const &nomorigine, list<string> const &nomdestinations)const;
 
     int trouveLePlusPres(int origine, set<int> vector1) const;
+
+    double calculerChemin_2(int const iOrigine, int const iDestination, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
 };
 
 #endif
