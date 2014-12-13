@@ -10,13 +10,12 @@
 #include <assert.h>
 #include <istream>
 #include <list>
-#include <set>
-#include <map>
 #include <vector>
 #include <queue>
 #include <string>
 #include <verto.h>
 #include <unordered_map>
+#include <unordered_set>
 #include "coordonnee.h"
 
 using namespace std;
@@ -49,7 +48,7 @@ private:
         mutable bool visite;
     };
 
-    map<string, unsigned int> indices; // todo changer pour unorderd_map O(1)
+    std::unordered_map<string, unsigned int> indices;
     vector<Lieu> lieux; // sommets du graphe
 
     void ajouterArete(const int io, const int id, string const &nomRoute);
@@ -61,7 +60,6 @@ private:
     inline double distanceEuclidienne(int const iOrigine, int const iDestination) const {
         Coordonnee const &coordonneeD = lieux[iDestination].coordonnee;
         return lieux[iOrigine].coordonnee.distance(coordonneeD);
-
     }
 
     double AStarAlgorithm(int const origine, int const destination, unordered_map<int, int> &parents) const;
@@ -73,11 +71,15 @@ private:
         return distanceEuclidienne(iOrigine, iDestination);
     };
 
-    set<int> getIndices(string const &nomorigine, list<string> const &nomdestinations)const;
+    unordered_set<int> getIndices(string const &nomorigine, list<string> const &nomdestinations)const;
 
-    int trouveLePlusPres(int origine, set<int> vector1) const;
+    int trouveLePlusPres(int origine, unordered_set<int> vector1) const;
 
     double calculerChemin_2(int const iOrigine, int const iDestination, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
+
+    double AStarFibo(int const origine, int const destination, unordered_map<int, int> &parents) const;
+
+
 };
 
 #endif

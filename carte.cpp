@@ -6,7 +6,6 @@
 
 #include "carte.h"
 #include <limits>
-#include <unordered_map>
 #include "filePrioritaire.h"
 
 const double INFINI = std::numeric_limits<double>::infinity();
@@ -26,7 +25,7 @@ void Carte::ajouterRoute(const string &nomroute, const list<string> &route) {
     // Il faut alors ajouter les segments de route (arêtes/arcs) : (a,b), (b,c), (c,d), (d,e).
     // Il ne faut pas ajouter (e,d), (d,c), (c,b), (b,a).
     // Les sens uniques doivent être considérées.
-    // todo ajouter nom de routes
+
     int io, id; // indice origine et destination
     list<string>::const_iterator it = route.begin();
     io = indices.at(*it);
@@ -68,7 +67,7 @@ double Carte::calculerTrajet_2(const string &nomorigine, const list<string> &nom
     // on cherche la destination la plus pres pour le retour, puis la prochaine destination la plus pres de ce point etc
     // on ferme la boucle avec origine et derniere destination trouve
 
-    std::set<int> destinations = getIndices(nomorigine, nomsdestinations);
+    std::unordered_set<int> destinations = getIndices(nomorigine, nomsdestinations);
 
     std::list<string> cheminnoeudsPlusPres;
     std::list<string> cheminroutesPlusPres;
@@ -159,7 +158,7 @@ void Carte::chemin(int courant, unordered_map<int, int> parents, std::list<strin
             unsigned int i = 0;
             std::vector<int> voisins = lieux[courant].aretes;
 
-            for (; i != voisins.size(); ++i) { // cherche dans un tableau de 4 environ // utiliser un unordered set ?
+            for (; i != voisins.size(); ++i) { // cherche dans un tableau de 4 environ
                 if (voisins[i] == suivant) break;
             }
             assert(i != voisins.size()); // la route est dans le tableau
@@ -182,7 +181,6 @@ void Carte::chemin(int courant, unordered_map<int, int> parents, std::list<strin
 }
 
 double Carte::AStarAlgorithm(const int origine, const int destination, unordered_map<int, int> &parents) const {
-    //cerr << "A * algo" << endl;
     // distances[v] <- infini
     std::unordered_map<int, double> distances;
     // distances.clear();
@@ -203,7 +201,6 @@ double Carte::AStarAlgorithm(const int origine, const int destination, unordered
 
         auto v = filePrioritaire.enleverMinimum();
 
-        //if (distances[v] == INFINI)  break;
         if (v == destination)  break;
         
         double distance_v = distances[v];
@@ -216,7 +213,9 @@ double Carte::AStarAlgorithm(const int origine, const int destination, unordered
             if (!distances.count(w) || d < distances[w]) {
                 parents[w] = v;
                 distances[w] = d;
-                const double &prioritee = d + heuristique(w, destination); // A* ou DijkstraAlgorithm si heuristique = 0
+                double h = heuristique(w, destination); // A* ou DijkstraAlgorithm si heuristique = 0
+                h = h > 1000 ? 1.5 * h : h; // plus rapide mais on pert des optimum !
+                const double &prioritee = d + h;
                 filePrioritaire.inserer(w, prioritee); // ou modifier la priorite si possible
             }
         }
@@ -280,8 +279,8 @@ istream &operator>>(istream &is, Carte &carte) {
     return is;
 }
 
-set<int> Carte::getIndices(string const &nomorigine, list<string> const &nomdestinations)const {
-    std::set<int> destinations;
+unordered_set<int> Carte::getIndices(string const &nomorigine, list<string> const &nomdestinations) const {
+    std::unordered_set<int> destinations;
 
     //destinations.insert(indices.at(nomorigine));
     for (auto it : nomdestinations) {
