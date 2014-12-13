@@ -70,6 +70,10 @@ double Carte::calculerTrajet_2(const string &nomorigine, const list<string> &nom
 
     std::set<int> destinations = getIndices(nomorigine, nomsdestinations);
 
+    std::list<string> cheminnoeudsPlusPres;
+    std::list<string> cheminroutesPlusPres;
+    std::list<string> cheminnoeuds;
+    std::list<string> cheminroutes;
     int iOrigine= indices.at(nomorigine);
     int lepluspres;
     int dernier = -1;
@@ -79,30 +83,49 @@ double Carte::calculerTrajet_2(const string &nomorigine, const list<string> &nom
     for (; courent != INDEFINI; courent = lepluspres){
         lepluspres = INDEFINI;
         double distanceMin = INFINI;
-        cerr << "lieu le + proche pour aller a " << lieux[courent].nomlieu << endl;
-        for (int it2 : destinations){
-            if (it2!= courent && destinations.find(it2)!=destinations.end()){
-                double distance = calculerChemin(it2, courent, out_cheminnoeuds, out_cheminroutes);
-                cerr << "distance " << lieux[it2].nomlieu << " a " << lieux[courent].nomlieu << " = " << distance << endl;
+        ////cerr << "lieu le + proche pour aller a " << lieux[courent].nomlieu << endl;
+        for (int suivant : destinations){
+            if (suivant != courent && destinations.find(suivant)!=destinations.end()){
+                cheminnoeuds.clear();
+                cheminroutes.clear();
+
+                double distance = calculerChemin(suivant, courent, cheminnoeuds, cheminroutes);
+                //cerr << "distance " << lieux[suivant].nomlieu << " a " << lieux[courent].nomlieu << " = " << distance << endl;
                 if (distance < distanceMin){
                     distanceMin = distance;
-                    lepluspres = it2;
-                    cerr << "le plus pres est " << lieux[lepluspres].nomlieu << endl;
+                    lepluspres = suivant;
+                    //cerr << "le plus pres est " << lieux[lepluspres].nomlieu << endl;
+                    // remplacer liste1 par liste2
+                    cheminnoeudsPlusPres.clear();
+                    cheminroutesPlusPres.clear();
+                    cheminnoeudsPlusPres.splice(cheminnoeudsPlusPres.begin(), cheminnoeuds);
+                    cheminroutesPlusPres.splice(cheminroutesPlusPres.begin(), cheminroutes);
+
+                    //cerr << "chemin : ";
+                    //for (list<string>::const_iterator iter = out_cheminnoeuds.begin(); iter != out_cheminnoeuds.end(); ++iter)
+                        //cerr << *iter << " ";
+                    //cerr << endl;
+                    //cerr << "route : ";
+                    //for (list<string>::const_iterator iter = out_cheminroutes.begin(); iter != out_cheminroutes.end(); ++iter)
+                        //cerr << *iter << " ";
+                    //cerr << endl;
                 }
             }
         }
         if (lepluspres != INDEFINI) {
 
-            cerr << "retire " << lieux[lepluspres].nomlieu << endl;
+            //cerr << "retire " << lieux[lepluspres].nomlieu << endl;
             destinations.erase(lepluspres);
             total += distanceMin;
-            dernier = lepluspres; // correspond a la premiere destination
+            dernier = lepluspres; // correspond a la premiere destinationc++c=cccccccceegqrdahafjnHSGFADSA
+            out_cheminnoeuds.splice(out_cheminnoeuds.begin(), cheminnoeudsPlusPres);
+            out_cheminroutes.splice(out_cheminroutes.begin(), cheminroutesPlusPres); // O (1)
         }
     }
 
     assert(destinations.size()==0);
     // point de depart
-    cerr << "retour =  " << lieux[iOrigine].nomlieu << " a " << lieux[dernier].nomlieu << endl;
+    //cerr << "retour =  " << lieux[iOrigine].nomlieu << " a " << lieux[dernier].nomlieu << endl;
     total += calculerChemin(iOrigine, dernier, out_cheminnoeuds, out_cheminroutes);
 
     return total;
@@ -147,19 +170,19 @@ void Carte::chemin(int courant, unordered_map<int, int> parents, std::list<strin
         }
         suivant = courant;
     }
-    cerr << "affichage du chemin calcule : ";
-    for (list<string>::const_iterator iter = out_cheminnoeuds.begin(); iter != out_cheminnoeuds.end(); ++iter)
-        cerr << *iter << " ";
-    cerr << endl;
-    cerr << "affichage du chemin calcule : ";
-    for (list<string>::const_iterator iter = out_cheminroutes.begin(); iter != out_cheminroutes.end(); ++iter)
-        cerr << *iter << " ";
-    cerr << endl;
+    //cerr << "affichage du chemin calcule : ";
+    //for (list<string>::const_iterator iter = out_cheminnoeuds.begin(); iter != out_cheminnoeuds.end(); ++iter)
+        //cerr << *iter << " ";
+    //cerr << endl;
+    //cerr << "affichage du chemin calcule : ";
+    //for (list<string>::const_iterator iter = out_cheminroutes.begin(); iter != out_cheminroutes.end(); ++iter)
+        //cerr << *iter << " ";
+    //cerr << endl;
 
 }
 
 double Carte::AStarAlgorithm(const int origine, const int destination, unordered_map<int, int> &parents) const {
-    std::cerr << "A * algo" << endl;
+    //cerr << "A * algo" << endl;
     // distances[v] <- infini
     std::unordered_map<int, double> distances;
     // distances.clear();
@@ -193,7 +216,7 @@ double Carte::AStarAlgorithm(const int origine, const int destination, unordered
             if (!distances.count(w) || d < distances[w]) {
                 parents[w] = v;
                 distances[w] = d;
-                const double &prioritee = d ;//+ heuristique(w, iDestination); // A* ou DijkstraAlgorithm si heuristique = 0
+                const double &prioritee = d + heuristique(w, destination); // A* ou DijkstraAlgorithm si heuristique = 0
                 filePrioritaire.inserer(w, prioritee); // ou modifier la priorite si possible
             }
         }
