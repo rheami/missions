@@ -24,15 +24,12 @@ public:
 
     void ajouterLieu(string const &nomlieu, const Coordonnee &coordonnee);
 
-    void ajouterRoute(const string &nom, const list<string> &noms);
+    void ajouterRoute(const string &nom, const list <string> &noms);
 
-    double calculerTrajet_1(string const &nomorigine, list<string> const &nomsdestinations, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
-
-    double calculerTrajet_2(string const &nomorigine, list<string> const &nomsdestinations, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
-
+    double calculerTrajet_1(string const &nomorigine, list <string> const &nomsdestinations, list <string> &out_cheminnoeuds, list <string> &out_cheminroutes) const;
 
     double calculerChemin(const int origine, const int destination,
-            std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const;
+            std::list <string> &out_cheminnoeuds, std::list <string> &out_cheminroutes) const;
 
 private:
 
@@ -44,15 +41,13 @@ private:
     struct Lieu { // sommet
         string nomlieu;
         Coordonnee coordonnee;
-        vector<Arete> aretes;    // aretes (sommets des aretes sortantes)
-        //vector<string> routes; // nom des routes des aretes (meme indice que aretes)
+        vector <Arete> aretes;    // aretes (sommets des aretes sortantes)
         vector<int> destinations;
-        //mutable bool visite; // todo effacer
     };
 
     std::unordered_map<string, unsigned int> indices;
-    vector<Lieu> lieux; // sommets du graphe
-    vector<string> routes;
+    vector <Lieu> lieux; // sommets du graphe
+    vector <string> routes;
 
     void ajouterArete(const int io, const int id, string const &nomRoute);
 
@@ -67,21 +62,12 @@ private:
 
     double AStarAlgorithm(int const origine, int const destination, unordered_map<int, int> &parents) const;
 
-    void chemin(int courant, unordered_map<int, int> parents, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
+    void chemin(int courant, unordered_map<int, int> parents, list <string> &out_cheminnoeuds, list <string> &out_cheminroutes) const;
 
 
     inline double heuristique(int const iOrigine, int const iDestination) const {
         return distanceEuclidienne(iOrigine, iDestination);
     };
-
-    unordered_set<int> getIndices(string const &nomorigine, list<string> const &nomdestinations)const;
-
-    int trouveLePlusPres(int origine, unordered_set<int> vector1) const;
-
-    double calculerChemin_2(int const iOrigine, int const iDestination, list<string> &out_cheminnoeuds, list<string> &out_cheminroutes) const;
-
-    double AStarFibo(int const origine, int const destination, unordered_map<int, int> &parents) const;
-
 
 };
 

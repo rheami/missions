@@ -19,7 +19,7 @@ void tp3(Carte &carte, istream &ismissions) {
         ismissions >> nomlieuaffaire >> deuxpoints;
         if (!ismissions) break;
         assert(deuxpoints == ':');
-        list<string> destinations;
+        list <string> destinations;
         while (ismissions) {
             string destination;
             ismissions >> destination; // ne pas ajouter « >> std::std » ici.
@@ -28,7 +28,7 @@ void tp3(Carte &carte, istream &ismissions) {
             destinations.push_back(destination);
         }
 
-        list<string> chemin_noeuds, chemin_routes;
+        list <string> chemin_noeuds, chemin_routes;
         double distance = carte.calculerTrajet_1(nomlieuaffaire, destinations, chemin_noeuds, chemin_routes);
 
         for (list<string>::const_iterator iter = chemin_noeuds.begin(); iter != chemin_noeuds.end(); ++iter)
@@ -39,7 +39,6 @@ void tp3(Carte &carte, istream &ismissions) {
         cout << endl;
         cout << round(distance) << " m" << endl;
     }
-
 }
 
 int main(int argc, const char **argv) {
