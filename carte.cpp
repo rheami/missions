@@ -9,14 +9,24 @@
 #include "filePrioritaire.h"
 
 const double INFINI = std::numeric_limits<double>::infinity();
+
 int const &INDEFINI = -1;
 
 void Carte::ajouterLieu(const string &nomlieu, const Coordonnee &coordonnee) {
+    int indice = lieux.size();
     lieux.push_back(Lieu());
-    int indice = lieux.size()-1;
     lieux[indice].nomlieu = nomlieu;
     lieux[indice].coordonnee = coordonnee;
     indices[nomlieu] = indice;
+}
+
+void Carte::ajouterArete(int io, int id, string const &nomroute) {
+    int indice = lieux[io].aretes.size();
+    lieux[io].aretes.push_back(Arete());
+    lieux[io].aretes[indice].indicelieu = id;
+    int route = routes.size();
+    routes.push_back(nomroute);
+    lieux[io].aretes[indice].indiceroute = route;
 }
 
 void Carte::ajouterRoute(const string &nomroute, const list<string> &route) {
@@ -25,23 +35,24 @@ void Carte::ajouterRoute(const string &nomroute, const list<string> &route) {
     // Il faut alors ajouter les segments de route (arêtes/arcs) : (a,b), (b,c), (c,d), (d,e).
     // Il ne faut pas ajouter (e,d), (d,c), (c,b), (b,a).
     // Les sens uniques doivent être considérées.
-
-    int io, id; // indice origine et destination
-    list<string>::const_iterator it = route.begin();
-    io = indices.at(*it);
-    ++it;
-    while (it != route.end()) {
-        id = indices.at(*it);
-        ajouterArete(io, id, nomroute);
-        io = id;
-        ++it;
+    // indices origine et destination
+    int origine = INDEFINI;
+    int destination = INDEFINI;
+    for (auto it :route){
+//        try {
+            destination = indices.at(it);
+            if (origine != INDEFINI) {
+                ajouterArete(origine, destination, nomroute);
+            }
+            origine = destination;
+/*        }
+        catch ( const std::exception & e ) // pour tester avec des sections partielles des cartes
+        {
+            continue;
+        } */
     }
 }
 
-void Carte::ajouterArete(int io, int id, string const &nomroute) {
-    lieux[io].aretes.push_back(id);
-    lieux[io].routes.push_back(nomroute);
-}
 
 double Carte::calculerTrajet_1(const string& nomorigine, const list<string>& nomsdestinations,
         std::list<string>& out_cheminnoeuds, std::list<string>& out_cheminroutes) const
@@ -59,74 +70,6 @@ double Carte::calculerTrajet_1(const string& nomorigine, const list<string>& nom
     }
 
     total += calculerChemin(origine, position, out_cheminnoeuds, out_cheminroutes);
-    return total;
-}
-
-double Carte::calculerTrajet_2(const string &nomorigine, const list<string> &nomsdestinations,
-        std::list<string> &out_cheminnoeuds, std::list<string> &out_cheminroutes) const {
-    // on cherche la destination la plus pres pour le retour, puis la prochaine destination la plus pres de ce point etc
-    // on ferme la boucle avec origine et derniere destination trouve
-
-    std::unordered_set<int> destinations = getIndices(nomorigine, nomsdestinations);
-
-    std::list<string> cheminnoeudsPlusPres;
-    std::list<string> cheminroutesPlusPres;
-    std::list<string> cheminnoeuds;
-    std::list<string> cheminroutes;
-    int iOrigine= indices.at(nomorigine);
-    int lepluspres;
-    int dernier = -1;
-    int courent = iOrigine;
-    double total = 0;
-
-    for (; courent != INDEFINI; courent = lepluspres){
-        lepluspres = INDEFINI;
-        double distanceMin = INFINI;
-        ////cerr << "lieu le + proche pour aller a " << lieux[courent].nomlieu << endl;
-        for (int suivant : destinations){
-            if (suivant != courent && destinations.find(suivant)!=destinations.end()){
-                cheminnoeuds.clear();
-                cheminroutes.clear();
-
-                double distance = calculerChemin(suivant, courent, cheminnoeuds, cheminroutes);
-                //cerr << "distance " << lieux[suivant].nomlieu << " a " << lieux[courent].nomlieu << " = " << distance << endl;
-                if (distance < distanceMin){
-                    distanceMin = distance;
-                    lepluspres = suivant;
-                    //cerr << "le plus pres est " << lieux[lepluspres].nomlieu << endl;
-                    // remplacer liste1 par liste2
-                    cheminnoeudsPlusPres.clear();
-                    cheminroutesPlusPres.clear();
-                    cheminnoeudsPlusPres.splice(cheminnoeudsPlusPres.begin(), cheminnoeuds);
-                    cheminroutesPlusPres.splice(cheminroutesPlusPres.begin(), cheminroutes);
-
-                    //cerr << "chemin : ";
-                    //for (list<string>::const_iterator iter = out_cheminnoeuds.begin(); iter != out_cheminnoeuds.end(); ++iter)
-                        //cerr << *iter << " ";
-                    //cerr << endl;
-                    //cerr << "route : ";
-                    //for (list<string>::const_iterator iter = out_cheminroutes.begin(); iter != out_cheminroutes.end(); ++iter)
-                        //cerr << *iter << " ";
-                    //cerr << endl;
-                }
-            }
-        }
-        if (lepluspres != INDEFINI) {
-
-            //cerr << "retire " << lieux[lepluspres].nomlieu << endl;
-            destinations.erase(lepluspres);
-            total += distanceMin;
-            dernier = lepluspres; // correspond a la premiere destinationc++c=cccccccceegqrdahafjnHSGFADSA
-            out_cheminnoeuds.splice(out_cheminnoeuds.begin(), cheminnoeudsPlusPres);
-            out_cheminroutes.splice(out_cheminroutes.begin(), cheminroutesPlusPres); // O (1)
-        }
-    }
-
-    assert(destinations.size()==0);
-    // point de depart
-    //cerr << "retour =  " << lieux[iOrigine].nomlieu << " a " << lieux[dernier].nomlieu << endl;
-    total += calculerChemin(iOrigine, dernier, out_cheminnoeuds, out_cheminroutes);
-
     return total;
 }
 
@@ -149,34 +92,33 @@ void Carte::chemin(int courant, unordered_map<int, int> parents, std::list<strin
     int suivant = INDEFINI;
     for (; courant != INDEFINI; courant = parents[courant]) { // de la destination en remontant vers l origine
         // ajouter les noeuds
-        if (lieux[courant].nomlieu != out_cheminnoeuds.front()){
-            out_cheminnoeuds.push_front(lieux[courant].nomlieu);
+        string nomlieu = lieux[courant].nomlieu;
+        if (nomlieu != out_cheminnoeuds.front()){ // todo comparaison plus rapide si on utilise un pointeur
+            out_cheminnoeuds.push_front(nomlieu);
         }
 
-        // ajouter noms de routes
+        // ajouter noms de routes :
         if (suivant != INDEFINI) {
-            unsigned int i = 0;
-            std::vector<int> voisins = lieux[courant].aretes;
+            string nomroute = "";
 
-            for (; i != voisins.size(); ++i) { // cherche dans un tableau de 4 environ
-                if (voisins[i] == suivant) break;
+            for (auto & arete : lieux[courant].aretes) {
+
+                if (suivant == arete.indicelieu){
+                    //cout << suivant << " == " << arete.indicelieu;
+                    string nomroute = routes[arete.indiceroute];
+                    //assert(nomroute != "");
+                    if (nomroute != out_cheminroutes.front()){
+                        out_cheminroutes.push_front(nomroute);
+                    }
+                    //cout << nomroute;
+                    break;
+                }
             }
-            assert(i != voisins.size()); // la route est dans le tableau
-            string nomroute = lieux[courant].routes[i];
-            if (nomroute != out_cheminroutes.front()){
-                out_cheminroutes.push_front(nomroute);
-            }
+
         }
-        suivant = courant;
+
+        suivant = courant; // on remonte !
     }
-    //cerr << "affichage du chemin calcule : ";
-    //for (list<string>::const_iterator iter = out_cheminnoeuds.begin(); iter != out_cheminnoeuds.end(); ++iter)
-        //cerr << *iter << " ";
-    //cerr << endl;
-    //cerr << "affichage du chemin calcule : ";
-    //for (list<string>::const_iterator iter = out_cheminroutes.begin(); iter != out_cheminroutes.end(); ++iter)
-        //cerr << *iter << " ";
-    //cerr << endl;
 
 }
 
@@ -205,16 +147,16 @@ double Carte::AStarAlgorithm(const int origine, const int destination, unordered
         
         double distance_v = distances[v];
 
-        const std::vector<int> &voisins = lieux[v].aretes;
+        const std::vector<Arete> &voisins = lieux[v].aretes;
         // pour toutes les arretes sortantes (v,w) depuis sommet v
         for (unsigned int i = 0; i < voisins.size(); i++) {
-            const int w=voisins[i];
+            const int w=voisins[i].indicelieu;
             double d = distance_v + distanceEuclidienne(v, w);
             if (!distances.count(w) || d < distances[w]) {
                 parents[w] = v;
                 distances[w] = d;
                 double h = heuristique(w, destination); // A* ou DijkstraAlgorithm si heuristique = 0
-                h = h > 1000 ? 1.5 * h : h; // plus rapide mais on pert des optimum !
+                //h = h > 1000 ? 1.5 * h : h; // plus rapide mais on pert des optimum !
                 const double &prioritee = d + h;
                 filePrioritaire.inserer(w, prioritee); // ou modifier la priorite si possible
             }
@@ -228,9 +170,8 @@ ostream &operator<<(ostream &os, Carte &carte) {
 
     for (unsigned int v = 0; v < carte.lieux.size(); ++v) {
         os << endl << carte.lieux[v].nomlieu << " -> ";
-        const std::vector<int> &voisins = carte.lieux[v].aretes;
-        for (auto & element : voisins) {
-            os << carte.lieux[element].nomlieu << ", ";
+        for (auto & element : carte.lieux[v].aretes) {
+            os << carte.lieux[element.indicelieu].nomlieu << "=" << carte.routes[element.indiceroute] << ", ";
         }
     }
 
@@ -277,20 +218,6 @@ istream &operator>>(istream &is, Carte &carte) {
     }
 
     return is;
-}
-
-unordered_set<int> Carte::getIndices(string const &nomorigine, list<string> const &nomdestinations) const {
-    std::unordered_set<int> destinations;
-
-    //destinations.insert(indices.at(nomorigine));
-    for (auto it : nomdestinations) {
-        //cout << "ajout de " << it;
-        int indice = indices.at(it);
-        destinations.insert(indice);
-        //cout << " indice = " << indice << " lieux = " << lieux[indice].nomlieu;
-    }
-
-    return destinations;
 }
 
 

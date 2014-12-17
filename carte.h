@@ -13,7 +13,6 @@
 #include <vector>
 #include <queue>
 #include <string>
-#include <verto.h>
 #include <unordered_map>
 #include <unordered_set>
 #include "coordonnee.h"
@@ -37,19 +36,23 @@ public:
 
 private:
 
+    struct Arete {
+        int indicelieu;
+        int indiceroute;
+    };
+
     struct Lieu { // sommet
         string nomlieu;
-
         Coordonnee coordonnee;
-
-        vector<int> aretes;    // aretes (sommets des aretes sortantes)
-        vector<string> routes; // nom des routes des aretes (meme indice)
+        vector<Arete> aretes;    // aretes (sommets des aretes sortantes)
+        //vector<string> routes; // nom des routes des aretes (meme indice que aretes)
         vector<int> destinations;
-        mutable bool visite;
+        //mutable bool visite; // todo effacer
     };
 
     std::unordered_map<string, unsigned int> indices;
     vector<Lieu> lieux; // sommets du graphe
+    vector<string> routes;
 
     void ajouterArete(const int io, const int id, string const &nomRoute);
 
