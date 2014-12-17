@@ -30,4 +30,7 @@ clean :
 	rm -f *.o
 	rm -f tp3
 	rm -f *~
+	rm -f *.resultat
+	rm -f *.validation
+	
 
