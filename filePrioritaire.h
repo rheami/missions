@@ -1,6 +1,7 @@
 #if !defined(__FILEP_H__)
 #define __FILEP_H__
 #include <queue>
+#include <functional>
 #include <utility>
 #include <queue>
 #include <tuple>
