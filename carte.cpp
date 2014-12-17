@@ -79,44 +79,36 @@ double Carte::calculerChemin(const int iOrigine, const int iDestination,
 
 void Carte::chemin(int courant, unordered_map<int, int> parents, std::list <string> &out_cheminnoeuds, std::list <string> &out_cheminroutes) const {
 
-    int suivant = INDEFINI;
-    for (; courant != INDEFINI; courant = parents[courant]) { // de la destination en remontant vers l origine
-        // ajouter les noeuds
-        string nomlieu = lieux[courant].nomlieu;
-<<<<<<< HEAD
+	int suivant = INDEFINI;
+	for (; courant != INDEFINI; courant = parents[courant]) { // de la destination en remontant vers l origine
+		// ajouter les noeuds
+		string nomlieu = lieux[courant].nomlieu;
 		if (out_cheminnoeuds.size() == 0 || nomlieu != out_cheminnoeuds.front()){ // todo comparaison plus rapide si on utilise un pointeur
-=======
-        if (nomlieu != out_cheminnoeuds.front()) {
->>>>>>> 624087b03f81c0baf8cbc176a211497425be6159
-            out_cheminnoeuds.push_front(nomlieu);
-        }
+			out_cheminnoeuds.push_front(nomlieu);
+		}
 		int Y = 0;
-        // ajouter noms de routes :
-        if (suivant != INDEFINI) {
-            string nomroute = "";
+		// ajouter noms de routes :
+		if (suivant != INDEFINI) {
+			string nomroute = "";
 
-            for (auto &arete : lieux[courant].aretes) {
-                if (suivant == arete.indicelieu) {
-                    string nomroute = routes[arete.indiceroute];
-                    //assert(nomroute != "");
-<<<<<<< HEAD
+			for (auto &arete : lieux[courant].aretes) {
+				if (suivant == arete.indicelieu) {
+					string nomroute = routes[arete.indiceroute];
+					//assert(nomroute != "");
 					if (nomroute == "Boulevard_des_Sources")
 					{
-						Y = 2+3;
+						Y = 2 + 3;
 					}
-					if (out_cheminroutes.size() == 0 || nomroute != out_cheminroutes.front()){
-=======
-                    if (nomroute != out_cheminroutes.front()) {
->>>>>>> 624087b03f81c0baf8cbc176a211497425be6159
-                        out_cheminroutes.push_front(nomroute);
-                    }
-                    break;
-                }
-            }
-        }
-        suivant = courant;
-    }
+					if (out_cheminroutes.size() == 0 || nomroute != out_cheminroutes.front())
+						out_cheminroutes.push_front(nomroute);
+				}
+				break;
+			}
+		}
+	}
+	suivant = courant;
 }
+
 
 double Carte::AStarAlgorithm(const int origine, const int destination, unordered_map<int, int> &parents) const {
     std::unordered_map<int, double> distances;
