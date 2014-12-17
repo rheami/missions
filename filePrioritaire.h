@@ -1,5 +1,6 @@
 #if !defined(__FILEP_H__)
 #define __FILEP_H__
+
 #include <queue>
 #include <utility>
 #include <queue>
@@ -9,7 +10,9 @@ template<class T, class P> // T = type P = priorite  = int indice du lieu et dou
 class FilePrioritaire {
 public:
 
-    inline bool estVide() { return elements.empty(); }
+    inline bool estVide() {
+        return elements.empty();
+    }
 
     inline void inserer(const T &element, const P &prioritee) {
         elements.emplace(prioritee, element);
@@ -23,7 +26,8 @@ public:
 
 private:
     typedef std::pair <P, T> Element;
-    std::priority_queue<Element, std::vector<Element>, std::greater<Element>> elements;
+    std::priority_queue <Element, std::vector<Element>, std::greater<Element>> elements;
 
 };
+
 #endif
