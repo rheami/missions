@@ -3,7 +3,6 @@
  *  Automne 2014
  *  Squelette pour le TP3
 */
-#include <Windows.h>
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -53,7 +52,6 @@ int main(int argc, const char **argv) {
         ifstream fichiercarte(argv[1]);
         if (fichiercarte.fail()) {
             cout << "Erreur ouverture du fichier : " << argv[1] << endl;
-			Sleep(10000);
             return 2;
         }
         fichiercarte >> carte;
