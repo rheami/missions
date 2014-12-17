@@ -83,7 +83,7 @@ void Carte::chemin(int courant, unordered_map<int, int> parents, std::list <stri
     for (; courant != INDEFINI; courant = parents[courant]) { // de la destination en remontant vers l origine
         // ajouter les noeuds
         string nomlieu = lieux[courant].nomlieu;
-        if (nomlieu != out_cheminnoeuds.front()) {
+        if (out_cheminnoeuds.size()==0 || nomlieu != out_cheminnoeuds.front()) {
             out_cheminnoeuds.push_front(nomlieu);
         }
 
@@ -95,7 +95,7 @@ void Carte::chemin(int courant, unordered_map<int, int> parents, std::list <stri
                 if (suivant == arete.indicelieu) {
                     string nomroute = routes[arete.indiceroute];
                     //assert(nomroute != "");
-                    if (nomroute != out_cheminroutes.front()) {
+                    if (out_cheminroutes.size() == 0 || nomroute != out_cheminroutes.front()) {
                         out_cheminroutes.push_front(nomroute);
                     }
                     break;
