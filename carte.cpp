@@ -123,9 +123,10 @@ void Carte::chemin(int courant, unordered_map<int, int> parents, std::list <stri
         if (suivant != INDEFINI) {
             string nomroute = "";
 
-            for (auto &arete : lieux[courant].aretes) {
-                if (suivant == arete.indicelieu) {
-                    string nomroute = routes[arete.indiceroute];
+            for (auto arete = lieux[courant].aretes.rbegin(); arete != lieux[courant].aretes.rend(); ++arete)
+            {
+                if (suivant == (*arete).indicelieu) {
+                    string nomroute = routes[(*arete).indiceroute];
                     //assert(nomroute != "");
                     if (out_cheminroutes.size() == 0 || nomroute != out_cheminroutes.front()) {
                         out_cheminroutes.push_front(nomroute);
