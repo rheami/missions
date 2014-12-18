@@ -18,7 +18,7 @@ void tp3(Carte &carte, istream &ismissions) {
         ismissions >> nomlieuaffaire >> deuxpoints;
         if (!ismissions) break;
         assert(deuxpoints == ':');
-        list <string> destinations;
+        vector <string> destinations;
         while (ismissions) {
             string destination;
             ismissions >> destination; // ne pas ajouter « >> std::std » ici.

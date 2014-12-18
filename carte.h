@@ -26,7 +26,7 @@ public:
 
     void ajouterRoute(const string &nom, const list <string> &noms);
 
-    double calculerTrajet_1(string const &nomorigine, list <string> const &nomsdestinations, list <string> &out_cheminnoeuds, list <string> &out_cheminroutes) const;
+    double calculerTrajet_1(string const &nomorigine, vector<string> nomsdestinations, list <string> &out_cheminnoeuds, list <string> &out_cheminroutes) const;
 
     double calculerChemin(const int origine, const int destination,
             std::list <string> &out_cheminnoeuds, std::list <string> &out_cheminroutes) const;
